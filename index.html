@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solar Street Light Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url("bg1.gif");
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: yellow;
+            color: black;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: orange;
+        }
+        .battery-container {
+            margin-top: 20px;
+            width: 100px;
+            height: 40px;
+            border: 3px solid white;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .battery-fill {
+            height: 100%;
+            width: 0%;
+            background: green;
+            transition: width 1s;
+        }
+        .battery-text {
+            margin-top: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Solar Street Light Control</h2>
+        <button onclick="toggleLED()">Toggle Light</button>
+        <h2>Battery Status</h2>
+        <div class="battery-container">
+            <div class="battery-fill" id="batteryFill"></div>
+        </div>
+        <p class="battery-text">Battery: <span id="battery">--</span>%</p>
+    </div>
+
+    <script>
+        function toggleLED() {
+            fetch('http://192.168.45.106/toggle')
+                .then(response => response.text())
+                .then(data => console.log("Light Toggled: ", data));
+        }
+
+        function updateBattery() {
+            fetch('http://192.168.45.106/battery')
+                .then(response => response.text())
+                .then(data => {
+                    let batteryValue = parseFloat(data) || 0;
+                    document.getElementById('battery').innerText = batteryValue;
+                    document.getElementById('batteryFill').style.width = batteryValue + "%";
+                    document.getElementById('batteryFill').style.background = batteryValue > 20 ? 'green' : 'red';
+                })
+                .catch(error => console.log("Error Fetching Battery:", error));
+        }
+
+        setInterval(updateBattery, 5000);
+    </script>
+    
+</body>
+</html>
